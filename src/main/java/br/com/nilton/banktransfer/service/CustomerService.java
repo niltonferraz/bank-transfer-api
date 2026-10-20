@@ -19,6 +19,14 @@ public class CustomerService {
 
     public CustomerResponseDTO create(CustomerRequestDTO dto) {
 
+        if (repository.existsByCpf(dto.cpf())) {
+            throw new RuntimeException("CPF already exists");
+        }
+
+        if (repository.existsByEmail(dto.email())) {
+            throw new RuntimeException("Email already exists");
+        }
+
         Customer customer = Customer.builder()
                 .name(dto.name())
                 .cpf(dto.cpf())
@@ -85,4 +93,6 @@ public class CustomerService {
                 customer.getEmail()
         );
     }
+
+
 }

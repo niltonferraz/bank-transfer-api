@@ -10,6 +10,7 @@ import br.com.nilton.banktransfer.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import br.com.nilton.banktransfer.exception.AccountNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -110,5 +111,38 @@ public class AccountService {
         account = accountRepository.save(account);
 
         return mapToResponse(account);
+    }
+
+    @Transactional
+    public void transfer(
+            UUID sourceAccountId,
+            UUID destinationAccountId,
+            BigDecimal amount) {
+
+        Account sourceAccount = accountRepository.findById(sourceAccountId)
+                .orElseThrow(() ->
+                        new AccountNotFoundException(
+                                "Source account not found"));
+
+        Account destinationAccount = accountRepository.findById(destinationAccountId)
+                .orElseThrow(() ->
+                        new AccountNotFoundException(
+                                "Destination account not found"));
+
+        if (sourceAccount.getBalance().compareTo(amount) < 0) {
+            throw new InsufficientBalanceException(
+                    "Insufficient balance");
+        }
+
+        sourceAccount.setBalance(
+                sourceAccount.getBalance().subtract(amount)
+        );
+
+        destinationAccount.setBalance(
+                destinationAccount.getBalance().add(amount)
+        );
+
+        accountRepository.save(sourceAccount);
+        accountRepository.save(destinationAccount);
     }
 }

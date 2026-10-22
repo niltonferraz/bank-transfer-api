@@ -1,9 +1,6 @@
 package br.com.nilton.banktransfer.controller;
 
-import br.com.nilton.banktransfer.dto.AccountRequestDTO;
-import br.com.nilton.banktransfer.dto.AccountResponseDTO;
-import br.com.nilton.banktransfer.dto.DepositRequestDTO;
-import br.com.nilton.banktransfer.dto.WithdrawRequestDTO;
+import br.com.nilton.banktransfer.dto.*;
 import br.com.nilton.banktransfer.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -52,5 +49,18 @@ public class AccountController {
                 id,
                 dto.amount()
         );
+    }
+
+    @PostMapping("/transfer")
+    public String transfer(
+            @RequestBody TransferRequestDTO dto) {
+
+        service.transfer(
+                dto.sourceAccountId(),
+                dto.destinationAccountId(),
+                dto.amount()
+        );
+
+        return "Transfer completed successfully";
     }
 }
